@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Code Generator</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Link to your custom styles (if any) -->
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #qrcode-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1,
+        p {
+            color: #333333;
+        }
+
+        #url-input,
+        #amount-input {
+            width: 70%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+
+        #radio-options {
+            margin: 10px 0;
+        }
+
+        #generate-btn,
+        #clear-btn,
+        #download-btn {
+            background-color: #4caf50;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        #qrcode {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="qrcode-container">
+        <h1>QR Code Generator</h1>
+        <input type="text" id="url-input" placeholder="Text" autocomplete="" name="inputText" oninput="handleInput()" />
+        <input type="hidden" id="amount-input" placeholder="Amount" name="inputText" oninput="handleInput()" />
+
+        <div id="radio-options">
+            <label><input type="radio" onchange="radiohandle(this)" name="qr-type" value="Text" checked />
+                Text</label>
+            <label><input type="radio" name="qr-type" onchange="radiohandle(this)" value="Upi Id" />
+                Payment QR</label>
+        </div>
+        <button onclick="generateQRCode()" id="generate-btn" disabled>
+            Generate QR Code
+        </button>
+        <button onclick="clearInput()" id="clear-btn">Clear</button>
+        <button onclick="downloadQRCode()" id="download-btn" disabled>
+            Download
+        </button>
+        <div id="qrcode"></div>
+        <p style="float: right">&#169; Rajdeep Tiwari</p>
+    </div>
+
+    <script>
+        var generateBtn = document.getElementById("generate-btn");
+        var downloadBtn = document.getElementById("download-btn");
+        var qrType = null;
+        function radiohandle(obj) {
+            qrType = obj.value;
+            document.getElementById("url-input").placeholder = obj.value;
+            var displayAmount = document.getElementById("amount-input");
+            if (obj.value == "Upi Id") displayAmount.type = "Text";
+            else displayAmount.type = "hidden";
+            generateBtn.disabled = false;
+        }
+
+        function handleInput() {
+            var urlInput = document.getElementById("url-input").value;
+
+            generateBtn.disabled = urlInput.trim() === "";
+
+            downloadBtn.disabled = true;
+        }
+
+        function generateQRCode() {
+            var urlInput = document.getElementById("url-input").value;
+            var qrcodeContainer = document.getElementById("qrcode");
+
+            if (qrType === "Upi Id") {
+                var amountInput = document.getElementById("amount-input").value;
+                var upi = document.getElementById("url-input").value;
+                urlInput = `upi://pay?pa=${upi}&pn=PaytmUser&mc=0000&&am=${amountInput}&cu=INR`;
+            }
+
+            qrcodeContainer.innerHTML = "";
+            if (urlInput != "") {
+                var qrcode = new QRCode(qrcodeContainer, {
+                    text: urlInput,
+                    width: 128,
+                    height: 128,
+                });
+            }
+
+            generateBtn.disabled = true;
+
+            downloadBtn.disabled = false;
+        }
+
+        function clearInput() {
+            var urlInput = document.getElementById("url-input");
+            urlInput.value = "";
+
+            generateBtn.disabled = false;
+
+            downloadBtn.disabled = true;
+
+            document.getElementById("qrcode").innerHTML = "";
+        }
+
+        function downloadQRCode() {
+            var qrcodeContainer = document.getElementById("qrcode");
+            var canvas = qrcodeContainer.querySelector("canvas");
+
+            var downloadBtn = document.createElement("a");
+            downloadBtn.href = canvas.toDataURL("image/png");
+            downloadBtn.download = "qrcode.png";
+            downloadBtn.click();
+        }
+    </script>
+</body>
+
+</html>
