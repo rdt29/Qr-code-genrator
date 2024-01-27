@@ -139,8 +139,9 @@
 
         function clearInput() {
             var urlInput = document.getElementById("url-input");
+            var displayAmount = document.getElementById("amount-input");
             urlInput.value = "";
-
+            displayAmount.value = "";
             generateBtn.disabled = false;
 
             downloadBtn.disabled = true;
